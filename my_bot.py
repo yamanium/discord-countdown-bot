@@ -213,7 +213,7 @@ async def countdown_check(ctx):
                    f"**目標日:** {settings['target_date']}\n"
                    f"**毎日の通知時刻:** {settings['send_time']}\n"
                    f"**通知チャンネル:** <#{settings['channel_id']}>\n"
-                   f"名言orコダックTips: {time_str}")
+                   f"名言orコダックTips: {quote}")
                    
 
 # !countdown_stop コマンド
