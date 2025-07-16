@@ -103,7 +103,7 @@ async def check_countdown():
             message = (f"**{settings['event_name']}** まであと **{remaining_days}日** です。\n\n"
                        f"> {quote}")
         elif remaining_days == 0:
-            message = f"🎉 **{settings['event_name']}** 当日です！おめでとうございます！ 🎉"
+            message = f"🎉 **{settings['event_name']}** 当日です！おめでとうございます！ 頑張りましょう🎉"
         else:
             message = f"**{settings['event_name']}** の日付は過ぎました。"
 
@@ -203,6 +203,7 @@ async def countdown_set(ctx, date_str: str, time_str: str, *, event_name: str):
 async def countdown_check(ctx):
     """現在設定されているカウントダウン情報を確認します。"""
     settings = load_settings()
+    quote = random.choice(QUOTES)
     if not settings:
         await ctx.send("現在、カウントダウンは設定されていません。")
         return
@@ -211,7 +212,9 @@ async def countdown_check(ctx):
                    f"**イベント名:** {settings['event_name']}\n"
                    f"**目標日:** {settings['target_date']}\n"
                    f"**毎日の通知時刻:** {settings['send_time']}\n"
-                   f"**通知チャンネル:** <#{settings['channel_id']}>")
+                   f"**通知チャンネル:** <#{settings['channel_id']}>\n"
+                   f"名言orコダックTips: {time_str}")
+                   
 
 # !countdown_stop コマンド
 @bot.command(name="countdown_stop")
