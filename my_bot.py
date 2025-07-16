@@ -5,6 +5,8 @@ import asyncio
 import random
 import json
 import os
+from flask import Flask
+from threading import Thread
 
 # ----------------- 設定 -----------------
 
@@ -253,9 +255,29 @@ async def remind(ctx, time: str, *, reminder_message: str):
     except Exception as e:
         await ctx.send(f"エラーが発生しました: {e}")
 
+# +++++++++ Renderのヘルスチェック用Webサーバー +++++++++
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+  app.run(host='0.0.0.0',port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+# +++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 # ----------------- 実行 -----------------
 # Renderの環境変数 'DISCORD_TOKEN' からトークンを読み込む
 BOT_TOKEN = os.getenv('DISCORD_TOKEN')
+
+# Webサーバーを起動
+keep_alive()
+
 if BOT_TOKEN is None:
     print("エラー: 環境変数 'DISCORD_TOKEN' が設定されていません。")
 else:
