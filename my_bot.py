@@ -4,8 +4,9 @@ import datetime
 import asyncio
 import random
 import json
-from zoneinfo import ZoneInfo
 import os
+from zoneinfo import ZoneInfo
+# ▼▼▼ Webサーバー機能を追加 ▼▼▼
 from flask import Flask
 from threading import Thread
 
@@ -19,6 +20,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
+# デフォルトのhelpコマンドを無効化
 bot = commands.Bot(command_prefix='!', intents=intents, help_command=None)
 
 # 励ましの言葉リスト
@@ -55,6 +57,21 @@ def load_settings():
 def save_settings(settings):
     with open(SETTINGS_FILE, 'w') as f:
         json.dump(settings, f, indent=4)
+
+# ----------------- Railwayのスリープ対策用Webサーバー -----------------
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+@app.route('/health')
+def health_check():
+    return "I'm alive!", 200
+
+def run_flask():
+    port = int(os.getenv('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
 
 # ----------------- イベント -----------------
 
@@ -259,30 +276,17 @@ async def remind(ctx, time: str, *, reminder_message: str):
     except Exception as e:
         await ctx.send(f"エラーが発生しました: {e}")
 
-# +++++++++ Renderのヘルスチェック用Webサーバー +++++++++
-app = Flask('')
-
-@app.route('/')
-def home():
-    return "Bot is alive!"
-
-def run():
-  app.run(host='0.0.0.0',port=8080)
-
-def keep_alive():
-    t = Thread(target=run)
-    t.start()
-# +++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 # ----------------- 実行 -----------------
-# Renderの環境変数 'DISCORD_TOKEN' からトークンを読み込む
-BOT_TOKEN = os.getenv('DISCORD_TOKEN')
-
-# Webサーバーを起動
-keep_alive()
-
-if BOT_TOKEN is None:
-    print("エラー: 環境変数 'DISCORD_TOKEN' が設定されていません。")
-else:
-    bot.run(BOT_TOKEN)
+if __name__ == '__main__':
+    # Webサーバーを別スレッドで起動
+    flask_thread = Thread(target=run_flask)
+    flask_thread.start()
+    
+    # メインスレッドでDiscordボットを起動
+    BOT_TOKEN = os.getenv('DISCORD_TOKEN')
+    if BOT_TOKEN is None:
+        print("エラー: 環境変数 'DISCORD_TOKEN' が設定されていません。")
+    else:
+        bot.run(BOT_TOKEN)
